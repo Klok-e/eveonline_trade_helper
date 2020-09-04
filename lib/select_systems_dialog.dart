@@ -125,7 +125,9 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
         }
       },
       onSaved: (newValue) {
-        selected = newValue;
+        setState(() {
+          selected = newValue;
+        });
       },
       onSuggestionSelected: (suggestion) {
         _typeAheadController.text = suggestion.name;

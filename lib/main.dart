@@ -16,11 +16,10 @@ void main() {
 }
 
 class TradeApp extends StatelessWidget {
-  final SystemSearch _systemSearch;
+  final SystemSearch systemSearch;
 
-  const TradeApp({Key key, SystemSearch systemSearch})
+  const TradeApp({Key key, this.systemSearch})
       : assert(systemSearch != null),
-        _systemSearch = systemSearch,
         super(key: key);
 
   // This widget is the root of your application.
@@ -46,7 +45,7 @@ class TradeApp extends StatelessWidget {
       ),
       home: HomePage(
         title: 'EVE Trade Helper',
-        systemSearch: _systemSearch,
+        systemSearch: systemSearch,
       ),
     );
   }
@@ -67,11 +66,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  SortType _sortType;
+  SortType _sortType = SortType.profit_desc;
 
   SelectedSystems _systems;
-
-  SortButton _sortButton;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +77,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-          _sortButton = SortButton(),
+          SortButton(
+            callback: (sortType) {
+              setState(() {
+                _sortType = sortType;
+              });
+            },
+          ),
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () async {
@@ -98,18 +101,27 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: GoodsList(),
+      body: TradesList(
+        sortType: _sortType,
+        systems: _systems,
+      ),
     );
   }
 }
 
 class SortButton extends StatefulWidget {
+  final sortButtonCallback callback;
+
+  const SortButton({Key key, this.callback}) : super(key: key);
+
   @override
   SortButtonState createState() => SortButtonState();
 }
 
+typedef sortButtonCallback = void Function(SortType sortType);
+
 class SortButtonState extends State<SortButton> {
-  SortType sortType;
+  SortType _sortType;
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +133,9 @@ class SortButtonState extends State<SortButton> {
         );
         Scaffold.of(context).showSnackBar(snackBar);
         setState(() {
-          sortType = value;
+          _sortType = value;
         });
+        widget.callback(_sortType);
       },
       icon: Icon(Icons.sort),
       itemBuilder: (BuildContext context) {

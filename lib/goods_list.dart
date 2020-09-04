@@ -1,13 +1,17 @@
 import 'package:dart_eveonline_esi/api.dart';
 import 'package:eveonline_trade_helper/main.dart';
+import 'package:eveonline_trade_helper/select_systems_dialog.dart';
 import 'package:eveonline_trade_helper/sort_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class GoodsList extends StatelessWidget {
+class TradesList extends StatelessWidget {
   final SortType sortType;
+  final SelectedSystems systems;
 
-  const GoodsList({Key key, this.sortType}) : super(key: key);
+  const TradesList({Key key, this.sortType, this.systems})
+      : assert(sortType != null),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
