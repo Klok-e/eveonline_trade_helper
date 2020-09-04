@@ -5,8 +5,7 @@ class EveSystem {
   final String name;
   final double secStatus;
 
-  const EveSystem(
-      {@required this.secStatus, @required this.name, @required this.id})
+  const EveSystem(this.secStatus, this.name, this.id)
       : assert(name != null),
         assert(id != null),
         assert(secStatus != null);
@@ -52,4 +51,16 @@ class EveSystem {
     }
     return Color(hex);
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EveSystem &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          secStatus == other.secStatus;
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode ^ secStatus.hashCode;
 }

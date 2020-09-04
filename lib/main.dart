@@ -6,12 +6,23 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import 'eve_system.dart';
 import 'goods_list.dart';
+import 'select_systems_dialog.dart';
+import 'system_search.dart';
 
 void main() {
-  runApp(TradeApp());
+  runApp(TradeApp(
+    systemSearch: SystemSearch(UniverseApi(), SearchApi()),
+  ));
 }
 
 class TradeApp extends StatelessWidget {
+  final SystemSearch _systemSearch;
+
+  const TradeApp({Key key, SystemSearch systemSearch})
+      : assert(systemSearch != null),
+        _systemSearch = systemSearch,
+        super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -35,13 +46,19 @@ class TradeApp extends StatelessWidget {
       ),
       home: HomePage(
         title: 'EVE Trade Helper',
+        systemSearch: _systemSearch,
       ),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+  final SystemSearch systemSearch;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  HomePage({Key key, this.title, this.systemSearch})
+      : assert(systemSearch != null),
+        super(key: key);
 
   final String title;
 
@@ -60,6 +77,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: widget.scaffoldKey,
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
@@ -69,103 +87,20 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               showDialog<void>(
                 context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text("Select systems"),
-                    content: Form(
-                      child: Column(
-                        children: [
-                          SystemSelectionField(
-                            hint: "From system",
-                          ),
-                          SystemSelectionField(
-                            hint: "To system",
-                          ),
-                        ],
-                        mainAxisSize: MainAxisSize.min,
-                      ),
-                      autovalidate: true,
-                    ),
-                    actions: [
-                      FlatButton(
-                        child: Text("Ok"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      FlatButton(
-                        child: Text("Cancel"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      )
-                    ],
+                builder: (context1) {
+                  return SelectSystemsDialog(
+                    systemSearch: widget.systemSearch,
+                    scaffoldKey: widget.scaffoldKey,
                   );
                 },
+                barrierDismissible: false,
+                useRootNavigator: true,
               );
             },
           )
         ],
       ),
       body: GoodsList(),
-    );
-  }
-}
-
-class SystemSelectionField extends StatelessWidget {
-  final String hint;
-  final SearchApi _searchApi = SearchApi();
-  final UniverseApi _universeApi = UniverseApi();
-
-  SystemSelectionField({Key key, this.hint}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TypeAheadFormField<EveSystem>(
-      textFieldConfiguration: TextFieldConfiguration(
-        decoration: InputDecoration(hintText: hint),
-      ),
-      validator: (value) {
-        return null;
-      },
-      onSuggestionSelected: (suggestion) {},
-      itemBuilder: (context, itemData) {
-        return ListTile(
-          title: SizedBox(
-            child: Row(
-              children: [
-                Text(
-                  ((itemData.secStatus * 10.0).roundToDouble() / 10.0)
-                      .toString(),
-                  style: TextStyle(color: itemData.secColor),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Text(itemData.name)
-              ],
-            ),
-          ),
-        );
-      },
-      suggestionsCallback: (pattern) async {
-        if (pattern.length < 3) {
-          return <EveSystem>[];
-        }
-        var systems =
-            await _searchApi.getSearch(<String>["solar_system"], pattern);
-        if (systems.solarSystem == null) {
-          return <EveSystem>[];
-        }
-
-        return await Future.wait(systems.solarSystem.take(5).map((sysid) async {
-          var sysinfo = await _universeApi.getUniverseSystemsSystemId(sysid);
-          return EveSystem(
-              id: sysid, name: sysinfo.name, secStatus: sysinfo.securityStatus);
-        }));
-      },
-      hideOnEmpty: true,
-      hideOnLoading: true,
     );
   }
 }
