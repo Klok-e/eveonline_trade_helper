@@ -69,8 +69,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   SortType _sortType;
 
-  int _fromSystem;
-  int _toSystem;
+  SelectedSystems _systems;
 
   SortButton _sortButton;
 
@@ -84,8 +83,8 @@ class _HomePageState extends State<HomePage> {
           _sortButton = SortButton(),
           IconButton(
             icon: Icon(Icons.map),
-            onPressed: () {
-              showDialog<void>(
+            onPressed: () async {
+              _systems = await showDialog<SelectedSystems>(
                 context: context,
                 builder: (context1) {
                   return SelectSystemsDialog(
@@ -94,7 +93,6 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 barrierDismissible: false,
-                useRootNavigator: true,
               );
             },
           )

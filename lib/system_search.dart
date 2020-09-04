@@ -9,7 +9,7 @@ class SystemSearch {
   final UniverseApi _universeApi;
   final SearchApi _searchApi;
 
-  HashSet<String> _systemNames = HashSet();
+  Map<String, EveSystem> _systemNames = Map();
 
   SystemSearch(UniverseApi universeApi, SearchApi searchApi)
       : assert(universeApi != null),
@@ -36,12 +36,12 @@ class SystemSearch {
         sysid,
       );
     }));
-    _systemNames.addAll(sys.map((e) => e.name));
+    _systemNames.addEntries(sys.map((s) => MapEntry(s.name, s)));
     return sys;
   }
 
-  bool systemNameExists(String name) {
+  EveSystem getSystemWasSuggested(String name) {
     assert(name != null);
-    return _systemNames.contains(name);
+    return _systemNames[name];
   }
 }

@@ -5,6 +5,13 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'eve_system.dart';
 import 'system_search.dart';
 
+class SelectedSystems {
+  final EveSystem from;
+  final EveSystem to;
+
+  SelectedSystems(this.from, this.to);
+}
+
 class SelectSystemsDialog extends StatelessWidget {
   final SystemSearch _systemSearch;
 
@@ -63,7 +70,11 @@ class SelectSystemsDialog extends StatelessWidget {
               );
               _scaffoldKey.currentState.showSnackBar(snackBar);
 
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(SelectedSystems(
+                  _systemSearch.getSystemWasSuggested(
+                      _fromFieldKey.currentState.selected),
+                  _systemSearch.getSystemWasSuggested(
+                      _toFieldKey.currentState.selected)));
             }
           },
         ),
@@ -105,16 +116,16 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
         controller: _typeAheadController,
       ),
       validator: (value) {
-        return value != ""
-            ? (widget._systemSearch.systemNameExists(value)
-                ? null
-                : "System doesn't exist")
-            : "Please enter a system name";
+        if (value != "") {
+          return (widget._systemSearch.getSystemWasSuggested(value) != null
+              ? null
+              : "System doesn't exist");
+        } else {
+          return "Please enter a system name";
+        }
       },
       onSaved: (newValue) {
-        setState(() {
-          selected = newValue;
-        });
+        selected = newValue;
       },
       onSuggestionSelected: (suggestion) {
         _typeAheadController.text = suggestion.name;
