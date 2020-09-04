@@ -134,8 +134,11 @@ class SystemSelectionField extends StatelessWidget {
           title: SizedBox(
             child: Row(
               children: [
-                Text(((itemData.secStatus * 10.0).roundToDouble() / 10.0)
-                    .toString()),
+                Text(
+                  ((itemData.secStatus * 10.0).roundToDouble() / 10.0)
+                      .toString(),
+                  style: TextStyle(color: itemData.secColor),
+                ),
                 SizedBox(
                   width: 20,
                 ),
@@ -152,7 +155,7 @@ class SystemSelectionField extends StatelessWidget {
         var systems =
             await _searchApi.getSearch(<String>["solar_system"], pattern);
         if (systems.solarSystem == null) {
-          return [];
+          return <EveSystem>[];
         }
 
         return await Future.wait(systems.solarSystem.take(5).map((sysid) async {
