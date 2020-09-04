@@ -7,6 +7,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'eve_system.dart';
 import 'goods_list.dart';
 import 'select_systems_dialog.dart';
+import 'sort_button.dart';
 import 'system_search.dart';
 
 void main() {
@@ -105,47 +106,6 @@ class _HomePageState extends State<HomePage> {
         sortType: _sortType,
         systems: _systems,
       ),
-    );
-  }
-}
-
-class SortButton extends StatefulWidget {
-  final sortButtonCallback callback;
-
-  const SortButton({Key key, this.callback}) : super(key: key);
-
-  @override
-  SortButtonState createState() => SortButtonState();
-}
-
-typedef sortButtonCallback = void Function(SortType sortType);
-
-class SortButtonState extends State<SortButton> {
-  SortType _sortType;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<SortType>(
-      onSelected: (value) {
-        final snackBar = SnackBar(
-          content: Text("Sorting by ${value.name}"),
-          duration: Duration(milliseconds: 2000),
-        );
-        Scaffold.of(context).showSnackBar(snackBar);
-        setState(() {
-          _sortType = value;
-        });
-        widget.callback(_sortType);
-      },
-      icon: Icon(Icons.sort),
-      itemBuilder: (BuildContext context) {
-        return SortType.values
-            .map((sort) => PopupMenuItem<SortType>(
-                  value: sort,
-                  child: Text(sort.name),
-                ))
-            .toList();
-      },
     );
   }
 }
