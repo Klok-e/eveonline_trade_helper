@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () async {
-              _systems = await showDialog<SelectedSystems>(
+              var syst = await showDialog<SelectedSystems>(
                 context: context,
                 builder: (context1) {
                   return SelectSystemsDialog(
@@ -98,6 +98,9 @@ class _HomePageState extends State<HomePage> {
                 },
                 barrierDismissible: false,
               );
+              setState(() {
+                _systems = syst;
+              });
             },
           )
         ],
