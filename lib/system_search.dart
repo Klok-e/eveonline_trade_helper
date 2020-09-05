@@ -34,6 +34,7 @@ class SystemSearch {
         sysinfo.securityStatus,
         sysinfo.name,
         sysid,
+        sysinfo.constellationId,
       );
     }));
     _systemNames.addEntries(sys.map((s) => MapEntry(s.name, s)));

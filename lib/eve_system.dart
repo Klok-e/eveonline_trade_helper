@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class EveSystem {
+  final int constellationId;
   final int id;
   final String name;
   final double secStatus;
 
-  const EveSystem(this.secStatus, this.name, this.id)
+  const EveSystem(this.secStatus, this.name, this.id, this.constellationId)
       : assert(name != null),
         assert(id != null),
-        assert(secStatus != null);
+        assert(secStatus != null),
+        assert(constellationId != null);
 
   Color get secColor {
     var secVal = (secStatus * 10.0).round();
