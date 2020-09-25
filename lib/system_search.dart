@@ -41,7 +41,7 @@ class SystemSearch {
     return sys;
   }
 
-  EveSystem getSystemWasSuggested(String name) {
+  EveSystem system(String name) {
     assert(name != null);
     return _systemNames[name];
   }

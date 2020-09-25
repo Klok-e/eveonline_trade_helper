@@ -55,18 +55,22 @@ class TradesList extends StatelessWidget {
   }
 }
 
+enum Order { Buy, Sell }
+
 class OrderData {
   final double price;
   final int volumeRemain;
   final int typeId;
+  final Order order;
 
-  OrderData(this.price, this.volumeRemain, this.typeId);
+  const OrderData(this.price, this.volumeRemain, this.typeId, this.order);
 }
 
 class SystemMarketData {
-  final List<OrderData> _orders;
+  final List<OrderData> _sell;
+  final List<OrderData> _buy;
 
-  SystemMarketData(this._orders);
+  const SystemMarketData(this._sell, this._buy);
 }
 
 class MarketData {
@@ -93,10 +97,12 @@ class MarketData {
       regionOrders.addAll(pageOrders);
     } while (pageOrders.length >= 1000);
 
-    var systemOrders = regionOrders
-        .where((el) => el.systemId == system.id)
-        .map((e) => OrderData(e.price, e.volumeRemain, e.typeId));
+    var systemOrders = regionOrders.where((el) => el.systemId == system.id).map(
+        (e) => OrderData(e.price, e.volumeRemain, e.typeId,
+            e.isBuyOrder ? Order.Buy : Order.Sell));
 
-    return SystemMarketData(systemOrders.toList());
+    return SystemMarketData(
+        List.unmodifiable(systemOrders.where((ord) => ord.order == Order.Sell)),
+        List.unmodifiable(systemOrders.where((ord) => ord.order == Order.Buy)));
   }
 }

@@ -71,10 +71,8 @@ class SelectSystemsDialog extends StatelessWidget {
               _scaffoldKey.currentState.showSnackBar(snackBar);
 
               Navigator.of(context).pop(SelectedSystems(
-                  _systemSearch.getSystemWasSuggested(
-                      _fromFieldKey.currentState.selected),
-                  _systemSearch.getSystemWasSuggested(
-                      _toFieldKey.currentState.selected)));
+                  _systemSearch.system(_fromFieldKey.currentState.selected),
+                  _systemSearch.system(_toFieldKey.currentState.selected)));
             }
           },
         ),
@@ -117,7 +115,7 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
       ),
       validator: (value) {
         if (value != "") {
-          return (widget._systemSearch.getSystemWasSuggested(value) != null
+          return (widget._systemSearch.system(value) != null
               ? null
               : "System doesn't exist");
         } else {
