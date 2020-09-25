@@ -17,40 +17,31 @@ class TradesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final worthyItems = sysFrom.cmpSellSell(sysTo);
     return ListView(
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.image,
-              size: 50,
-            ),
-            Text("shit1"),
-            Spacer(),
-            Text("buy xxx"),
-            Spacer(),
-            Text("sell xxx"),
-            Spacer(),
-            Text("margin zzz")
-          ],
+        EveItem(),
+      ],
+    );
+  }
+}
+
+class EveItem extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          Icons.image,
+          size: 50,
         ),
-        Row(
-          children: [
-            Icon(
-              Icons.image,
-              size: 50,
-            ),
-            Text(
-              "shit2",
-            ),
-            Spacer(),
-            Text("buy yyy"),
-            Spacer(),
-            Text("sell yyy"),
-            Spacer(),
-            Text("margin zzz")
-          ],
-        ),
+        Text("shit1"),
+        Spacer(),
+        Text("buy xxx"),
+        Spacer(),
+        Text("sell xxx"),
+        Spacer(),
+        Text("margin zzz")
       ],
     );
   }

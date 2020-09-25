@@ -22,7 +22,7 @@ class TradeApp extends StatelessWidget {
   final MarketData marketData;
 
   const TradeApp({Key key, this.systemSearch, this.marketData})
-      : assert(systemSearch != null),
+      : assert(systemSearch != null && marketData != null),
         super(key: key);
 
   // This widget is the root of your application.
@@ -49,6 +49,7 @@ class TradeApp extends StatelessWidget {
       home: HomePage(
         title: 'EVE Trade Helper',
         systemSearch: systemSearch,
+        marketData: marketData,
       ),
     );
   }
@@ -61,7 +62,9 @@ class HomePage extends StatefulWidget {
   final String title;
 
   HomePage({Key key, this.title, this.systemSearch, this.marketData})
-      : assert(systemSearch != null),
+      : assert(title != null),
+        assert(systemSearch != null),
+        assert(marketData != null),
         super(key: key);
 
   @override
@@ -74,49 +77,80 @@ class _HomePageState extends State<HomePage> {
   SystemMarketData _systemFrom;
   SystemMarketData _systemTo;
 
+  Future<void> marketDataLoad;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: widget.scaffoldKey,
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          SortButton(
-            callback: (sortType) {
-              setState(() {
-                _sortType = sortType;
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.map),
-            onPressed: () async {
-              final sys = await showDialog<SelectedSystems>(
-                context: context,
-                builder: (context1) {
-                  return SelectSystemsDialog(
-                    systemSearch: widget.systemSearch,
-                    scaffoldKey: widget.scaffoldKey,
+        key: widget.scaffoldKey,
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: [
+            SortButton(
+              callback: (sortType) {
+                setState(() {
+                  _sortType = sortType;
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.map),
+              onPressed: () async {
+                final sys = await showDialog<SelectedSystems>(
+                  context: context,
+                  builder: (context1) {
+                    return SelectSystemsDialog(
+                      systemSearch: widget.systemSearch,
+                      scaffoldKey: widget.scaffoldKey,
+                    );
+                  },
+                  barrierDismissible: false,
+                );
+
+                final from = widget.marketData.systemData(sys.from);
+                final to = widget.marketData.systemData(sys.to);
+                setState(() {
+                  marketDataLoad = Future.wait([from, to]).then((value) async {
+                    _systemFrom = value[0];
+                    _systemTo = value[1];
+                  });
+                });
+              },
+            )
+          ],
+        ),
+        body: marketDataLoad == null
+            ? EmptyTradeList()
+            : FutureBuilder(
+                future: marketDataLoad,
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                  Widget child;
+                  if (snapshot.hasData) {
+                    child = TradesList(
+                      sortType: _sortType,
+                      sysFrom: _systemFrom,
+                      sysTo: _systemTo,
+                    );
+                  } else if (snapshot.hasError) {
+                    child = Text("Some error happened");
+                  } else {
+                    child = SizedBox(
+                      child: CircularProgressIndicator(),
+                      width: 60,
+                      height: 60,
+                    );
+                  }
+                  return Center(
+                    child: child,
                   );
                 },
-                barrierDismissible: false,
-              );
+              ));
+  }
+}
 
-              final from = await widget.marketData.systemData(sys.from);
-              final to = await widget.marketData.systemData(sys.to);
-              setState(() {
-                _systemFrom = from;
-                _systemTo = to;
-              });
-            },
-          )
-        ],
-      ),
-      body: TradesList(
-        sortType: _sortType,
-        sysFrom: _systemFrom,
-        sysTo: _systemTo,
-      ),
-    );
+class EmptyTradeList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text("Select systems to see items here"));
   }
 }
