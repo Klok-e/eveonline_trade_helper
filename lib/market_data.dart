@@ -1,33 +1,123 @@
+import 'dart:math';
+
 import 'package:dart_eveonline_esi/api.dart';
 import 'package:equatable/equatable.dart';
+import 'package:collection/collection.dart';
 
 import 'eve_system.dart';
 
 enum Order { Buy, Sell }
 
 class OrderData extends Equatable {
-  final double price;
-  final int volumeRemain;
+  final ItemOrderData orderData;
   final int typeId;
   final Order order;
 
-  const OrderData(this.price, this.volumeRemain, this.typeId, this.order);
+  const OrderData(this.orderData, this.typeId, this.order);
 
   @override
-  List<Object> get props => [price, volumeRemain, typeId, order];
+  List<Object> get props => [orderData, typeId, order];
+}
+
+class ItemOrderData extends Equatable {
+  final double price;
+  final int volumeRemain;
+
+  const ItemOrderData(this.price, this.volumeRemain);
+
+  @override
+  List<Object> get props => [price, volumeRemain];
+}
+
+class ItemOrders {
+  final List<ItemOrderData> orders;
+  final Order order;
+  final int itemId;
+
+  const ItemOrders(this.orders, this.order, this.itemId);
 }
 
 class SystemMarketData {
-  final List<OrderData> _sell;
-  final List<OrderData> _buy;
+  Map<int, ItemOrders> _sell;
+  Map<int, ItemOrders> _buy;
 
-  const SystemMarketData(this._sell, this._buy);
+  SystemMarketData(List<OrderData> orders) {
+    _sell = groupBy<OrderData, int>(
+            orders.where((ord) => ord.order == Order.Sell).toList(),
+            (v) => v.typeId)
+        .map((k, v) =>
+            MapEntry(k, ItemOrders(v.map((e) => e.orderData), Order.Sell, k)));
 
-  static void _cmpItems(List<OrderData> x, List<OrderData> y) {
-
+    _buy = groupBy<OrderData, int>(
+            orders.where((ord) => ord.order == Order.Buy).toList(),
+            (v) => v.typeId)
+        .map((k, v) =>
+            MapEntry(k, ItemOrders(v.map((e) => e.orderData), Order.Buy, k)));
   }
 
-  void cmpSellSell(SystemMarketData other) {}
+  static MarketCmpResult _cmpItems(ItemOrders from, ItemOrders to) {
+    if (from == null || from.orders.isEmpty) {
+      return MarketFromNotStocked(from.itemId);
+    }
+
+    // find min buy price
+    final fromPrice = from.orders
+        .fold<double>(from.orders.first.price, (acc, x) => min(acc, x.price));
+    final fromVol = from.orders.fold<int>(
+        from.orders.first.volumeRemain, (acc, x) => acc + x.volumeRemain);
+
+    if (to == null || to.orders.isEmpty) {
+      return MarketToNotStocked(fromPrice, fromVol, from.itemId);
+    }
+
+    assert(from.itemId == to.itemId);
+
+    // find either min (if sell order) or max (if buy order) sell price
+    final toPrice = to.orders.fold<double>(to.orders.first.price,
+        (acc, x) => (from.order == Order.Sell ? min : max)(acc, x.price));
+    final toVol = from.orders.fold<int>(
+        from.orders.first.volumeRemain, (acc, x) => acc + x.volumeRemain);
+
+    return MarketSuccess((toPrice - fromPrice) / fromPrice, fromPrice, toPrice,
+        fromVol, toVol, from.itemId);
+  }
+
+  List<MarketCmpResult> cmpSellSell(SystemMarketData other) {
+    final compared = _sell.entries.map((entry) {
+      return _cmpItems(entry.value, other._sell[entry.key]);
+    });
+    return compared.toList();
+  }
+}
+
+class MarketCmpResult {
+  final int itemId;
+
+  MarketCmpResult(this.itemId);
+}
+
+class MarketSuccess extends MarketCmpResult {
+  final double margin;
+  final double buy;
+  final double sell;
+  final int buyAvailableVolume;
+  final int sellVolume;
+
+  MarketSuccess(this.margin, this.buy, this.sell, this.buyAvailableVolume,
+      this.sellVolume, int itemId)
+      : super(itemId);
+}
+
+class MarketFromNotStocked extends MarketCmpResult {
+  MarketFromNotStocked(int itemId) : super(itemId);
+}
+
+class MarketToNotStocked extends MarketCmpResult {
+  final double buy;
+  final int buyAvailableVolume;
+
+  MarketToNotStocked(this.buy, this.buyAvailableVolume, int itemId)
+      : super(itemId);
 }
 
 class MarketData {
@@ -55,11 +145,9 @@ class MarketData {
     } while (pageOrders.length >= 1000);
 
     var systemOrders = regionOrders.where((el) => el.systemId == system.id).map(
-        (e) => OrderData(e.price, e.volumeRemain, e.typeId,
+        (e) => OrderData(ItemOrderData(e.price, e.volumeRemain), e.typeId,
             e.isBuyOrder ? Order.Buy : Order.Sell));
 
-    return SystemMarketData(
-        systemOrders.where((ord) => ord.order == Order.Sell).toList(),
-        systemOrders.where((ord) => ord.order == Order.Buy).toList());
+    return SystemMarketData(systemOrders.toList());
   }
 }
