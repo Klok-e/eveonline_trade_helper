@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:dart_eveonline_esi/api.dart';
 
 import 'eve_system.dart';

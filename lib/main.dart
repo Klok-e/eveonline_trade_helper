@@ -2,24 +2,26 @@ import 'package:eveonline_trade_helper/sort_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_eveonline_esi/api.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import 'eve_system.dart';
 import 'goods_list.dart';
+import 'market_data.dart';
 import 'select_systems_dialog.dart';
 import 'sort_button.dart';
 import 'system_search.dart';
 
 void main() {
+  final uni = UniverseApi();
   runApp(TradeApp(
-    systemSearch: SystemSearch(UniverseApi(), SearchApi()),
+    systemSearch: SystemSearch(uni, SearchApi()),
+    marketData: MarketData(MarketApi(), uni),
   ));
 }
 
 class TradeApp extends StatelessWidget {
   final SystemSearch systemSearch;
+  final MarketData marketData;
 
-  const TradeApp({Key key, this.systemSearch})
+  const TradeApp({Key key, this.systemSearch, this.marketData})
       : assert(systemSearch != null),
         super(key: key);
 
