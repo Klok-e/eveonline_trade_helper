@@ -1,16 +1,20 @@
 import 'package:dart_eveonline_esi/api.dart';
+import 'package:equatable/equatable.dart';
 
 import 'eve_system.dart';
 
 enum Order { Buy, Sell }
 
-class OrderData {
+class OrderData extends Equatable {
   final double price;
   final int volumeRemain;
   final int typeId;
   final Order order;
 
   const OrderData(this.price, this.volumeRemain, this.typeId, this.order);
+
+  @override
+  List<Object> get props => [price, volumeRemain, typeId, order];
 }
 
 class SystemMarketData {
@@ -18,6 +22,12 @@ class SystemMarketData {
   final List<OrderData> _buy;
 
   const SystemMarketData(this._sell, this._buy);
+
+  static void _cmpItems(List<OrderData> x, List<OrderData> y) {
+
+  }
+
+  void cmpSellSell(SystemMarketData other) {}
 }
 
 class MarketData {

@@ -28,6 +28,8 @@ dependencies:
       url: https://github.com/LokiVKlokeNaAndoke/dart_eveonline_esi.git
       ref: master
   flutter_typeahead: ^1.8.8
+  equatable: ^1.2.3
+  collection: ^1.14.13
 
 dev_dependencies:
   flutter_test:

@@ -57,12 +57,12 @@ class TradeApp extends StatelessWidget {
 class HomePage extends StatefulWidget {
   final SystemSearch systemSearch;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final MarketData marketData;
+  final String title;
 
-  HomePage({Key key, this.title, this.systemSearch})
+  HomePage({Key key, this.title, this.systemSearch, this.marketData})
       : assert(systemSearch != null),
         super(key: key);
-
-  final String title;
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -71,7 +71,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   SortType _sortType = SortType.profit_desc;
 
-  SelectedSystems _systems;
+  SystemMarketData _systemFrom;
+  SystemMarketData _systemTo;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +91,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () async {
-              var syst = await showDialog<SelectedSystems>(
+              final sys = await showDialog<SelectedSystems>(
                 context: context,
                 builder: (context1) {
                   return SelectSystemsDialog(
@@ -100,8 +101,12 @@ class _HomePageState extends State<HomePage> {
                 },
                 barrierDismissible: false,
               );
+
+              final from = await widget.marketData.systemData(sys.from);
+              final to = await widget.marketData.systemData(sys.to);
               setState(() {
-                _systems = syst;
+                _systemFrom = from;
+                _systemTo = to;
               });
             },
           )
@@ -109,7 +114,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: TradesList(
         sortType: _sortType,
-        systems: _systems,
+        sysFrom: _systemFrom,
+        sysTo: _systemTo,
       ),
     );
   }

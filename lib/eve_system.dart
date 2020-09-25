@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class EveSystem {
+class EveSystem extends Equatable {
   final int constellationId;
   final int id;
   final String name;
@@ -55,14 +56,5 @@ class EveSystem {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is EveSystem &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          name == other.name &&
-          secStatus == other.secStatus;
-
-  @override
-  int get hashCode => id.hashCode ^ name.hashCode ^ secStatus.hashCode;
+  List<Object> get props => [constellationId, name, secStatus, id];
 }
