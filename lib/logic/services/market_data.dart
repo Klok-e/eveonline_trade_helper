@@ -1,34 +1,32 @@
 import 'dart:math';
 
 import 'package:dart_eveonline_esi/api.dart';
-import 'package:equatable/equatable.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'eve_system.dart';
+import '../../models/eve_system.dart';
 
 enum Order { Buy, Sell }
 
-class OrderData extends Equatable {
+@immutable
+class OrderData {
   final ItemOrderData orderData;
   final int typeId;
   final Order order;
 
   const OrderData(this.orderData, this.typeId, this.order);
-
-  @override
-  List<Object> get props => [orderData, typeId, order];
 }
 
-class ItemOrderData extends Equatable {
+@immutable
+class ItemOrderData {
   final double price;
   final int volumeRemain;
 
   const ItemOrderData(this.price, this.volumeRemain);
-
-  @override
-  List<Object> get props => [price, volumeRemain];
 }
 
+@immutable
 class ItemOrders {
   final List<ItemOrderData> orders;
   final Order order;
@@ -39,24 +37,29 @@ class ItemOrders {
 
 class SystemMarketData {
   Map<int, ItemOrders> _sell;
-  Map<int, ItemOrders> _buy;
 
-  SystemMarketData(List<OrderData> orders) {
-    _sell = groupBy<OrderData, int>(
+  SystemMarketData(List<OrderData> orders)
+      : _sell = groupBy<OrderData, int>(
             orders.where((ord) => ord.order == Order.Sell).toList(),
-            (v) => v.typeId)
-        .map((k, v) =>
-            MapEntry(k, ItemOrders(v.map((e) => e.orderData), Order.Sell, k)));
-
-    _buy = groupBy<OrderData, int>(
-            orders.where((ord) => ord.order == Order.Buy).toList(),
-            (v) => v.typeId)
-        .map((k, v) =>
-            MapEntry(k, ItemOrders(v.map((e) => e.orderData), Order.Buy, k)));
+            (v) =>
+                v.typeId).map((k, v) => MapEntry(
+            k, ItemOrders(v.map((e) => e.orderData).toList(), Order.Sell, k))) {
+    // _buy = groupBy<OrderData, int>(
+    //         orders.where((ord) => ord.order == Order.Buy).toList(),
+    //         (v) => v.typeId)
+    //     .map((k, v) => MapEntry(
+    //         k, ItemOrders(v.map((e) => e.orderData).toList(), Order.Buy, k)));
   }
 
-  static MarketCmpResult _cmpItems(ItemOrders from, ItemOrders to) {
-    if (from == null || from.orders.isEmpty) {
+  static MarketCmpResult _cmpItems(ItemOrders? from, ItemOrders? to) {
+    if (from == null && to == null) {
+      throw ArgumentError("from and to cant both be null");
+    }
+
+    if (from == null) {
+      return MarketFromNotStocked(to!.itemId);
+    }
+    if (from.orders.isEmpty) {
       return MarketFromNotStocked(from.itemId);
     }
 
@@ -125,9 +128,7 @@ class MarketData {
   final UniverseApi _universeApi;
 
   MarketData(MarketApi marketApi, UniverseApi _universeApi)
-      : assert(marketApi != null),
-        assert(_universeApi != null),
-        _marketApi = marketApi,
+      : _marketApi = marketApi,
         _universeApi = _universeApi;
 
   Future<SystemMarketData> systemData(EveSystem system) async {
@@ -139,8 +140,10 @@ class MarketData {
     // get ALL THE ORDERS
     var regionOrders = <GetMarketsRegionIdOrders200Ok>[];
     List<GetMarketsRegionIdOrders200Ok> pageOrders;
+    var page = 0;
     do {
-      pageOrders = await _marketApi.getMarketsRegionIdOrders("all", regionId);
+      pageOrders = await _marketApi.getMarketsRegionIdOrders("all", regionId,
+          page: page++);
       regionOrders.addAll(pageOrders);
     } while (pageOrders.length >= 1000);
 

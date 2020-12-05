@@ -1,23 +1,17 @@
-import 'package:eveonline_trade_helper/sort_type.dart';
+import 'package:eveonline_trade_helper/models/sort_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'market_data.dart';
+import '../logic/services/market_data.dart';
 
 class TradesList extends StatelessWidget {
   final SortType sortType;
-  final SystemMarketData sysFrom;
-  final SystemMarketData sysTo;
 
-  const TradesList({Key key, this.sortType, this.sysFrom, this.sysTo})
-      : assert(sortType != null),
-        assert(sysFrom != null),
-        assert(sysTo != null),
-        super(key: key);
+  const TradesList(this.sortType, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final worthyItems = sysFrom.cmpSellSell(sysTo);
+    //final worthyItems = sysFrom.cmpSellSell(sysTo);
     return ListView(
       children: [
         EveItem(),

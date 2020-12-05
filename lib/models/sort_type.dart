@@ -11,6 +11,5 @@ extension SortTypeExt on SortType {
       case SortType.margin_desc:
         return "Profit Descending";
     }
-    return null;
   }
 }

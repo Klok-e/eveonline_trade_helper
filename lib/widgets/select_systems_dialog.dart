@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import 'eve_system.dart';
-import 'system_search.dart';
+import '../models/eve_system.dart';
+import '../logic/services/system_search.dart';
 
 class SelectedSystems {
   final EveSystem from;
@@ -13,7 +13,7 @@ class SelectedSystems {
 }
 
 class SelectSystemsDialog extends StatelessWidget {
-  final SystemSearch _systemSearch;
+  final SystemSearchBloc _systemSearch;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<SystemSelectionFieldState> _fromFieldKey =
@@ -23,12 +23,9 @@ class SelectSystemsDialog extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey;
 
   SelectSystemsDialog(
-      {Key key,
-      SystemSearch systemSearch,
-      GlobalKey<ScaffoldState> scaffoldKey})
-      : assert(systemSearch != null),
-        assert(scaffoldKey != null),
-        _systemSearch = systemSearch,
+      SystemSearchBloc systemSearch, GlobalKey<ScaffoldState> scaffoldKey,
+      {Key? key})
+      : _systemSearch = systemSearch,
         _scaffoldKey = scaffoldKey,
         super(key: key);
 
@@ -89,11 +86,10 @@ class SelectSystemsDialog extends StatelessWidget {
 
 class SystemSelectionField extends StatefulWidget {
   final String hint;
-  final SystemSearch _systemSearch;
+  final SystemSearchBloc _systemSearch;
 
-  SystemSelectionField({Key key, this.hint, SystemSearch systemSearch})
-      : assert(systemSearch != null),
-        _systemSearch = systemSearch,
+  SystemSelectionField({Key? key, required this.hint, required SystemSearchBloc systemSearch})
+      : _systemSearch = systemSearch,
         super(key: key);
 
   @override

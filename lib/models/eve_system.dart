@@ -1,7 +1,6 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class EveSystem extends Equatable {
+class EveSystem {
   final int constellationId;
   final int id;
   final String name;
@@ -54,7 +53,4 @@ class EveSystem extends Equatable {
     }
     return Color(hex);
   }
-
-  @override
-  List<Object> get props => [constellationId, name, secStatus, id];
 }
