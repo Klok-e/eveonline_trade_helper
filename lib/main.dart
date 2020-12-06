@@ -1,5 +1,6 @@
 import 'package:eveonline_trade_helper/logic/compare_systems_bloc.dart';
 import 'package:eveonline_trade_helper/logic/sort_way.dart';
+import 'package:eveonline_trade_helper/widgets/select_systems_button.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_eveonline_esi/api.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,29 +100,8 @@ class _HomePageState extends State<HomePage> {
           title: Text(widget.title),
           actions: [
             SortButton(),
-            IconButton(
-              icon: Icon(Icons.map),
-              onPressed: () async {
-                // final sys = await showDialog<SelectedSystems>(
-                //   context: context,
-                //   builder: (context1) {
-                //     return SelectSystemsDialog(
-                //       systemSearch: widget.systemSearch,
-                //       scaffoldKey: widget.scaffoldKey,
-                //     );
-                //   },
-                //   barrierDismissible: false,
-                // );
-                //
-                // final from = widget.marketData.systemData(sys.from);
-                // final to = widget.marketData.systemData(sys.to);
-                // setState(() {
-                //   marketDataLoad = Future.wait([from, to]).then((value) async {
-                //     _systemFrom = value[0];
-                //     _systemTo = value[1];
-                //   });
-                // });
-              },
+            SelectSystemsButton(
+              scaffoldKey: widget.scaffoldKey,
             )
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/eve_system.dart';
 import '../logic/services/system_search.dart';
@@ -13,8 +14,6 @@ class SelectedSystems {
 }
 
 class SelectSystemsDialog extends StatelessWidget {
-  final SystemSearchService _systemSearch;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<SystemSelectionFieldState> _fromFieldKey =
       GlobalKey<SystemSelectionFieldState>();
@@ -24,14 +23,14 @@ class SelectSystemsDialog extends StatelessWidget {
 
   SelectSystemsDialog({
     Key key,
-    @required SystemSearchService systemSearch,
     @required GlobalKey<ScaffoldState> scaffoldKey,
-  })  : _systemSearch = systemSearch,
-        _scaffoldKey = scaffoldKey,
+  })  : _scaffoldKey = scaffoldKey,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final search = context.watch<SystemSearchService>();
+
     return AlertDialog(
       title: Text("Select systems"),
       content: Form(
@@ -42,12 +41,12 @@ class SelectSystemsDialog extends StatelessWidget {
                 SystemSelectionField(
                   key: _fromFieldKey,
                   hint: "From system",
-                  systemSearch: _systemSearch,
+                  systemSearch: search,
                 ),
                 SystemSelectionField(
                   key: _toFieldKey,
                   hint: "To system",
-                  systemSearch: _systemSearch,
+                  systemSearch: search,
                 ),
               ],
               mainAxisSize: MainAxisSize.min,
@@ -69,8 +68,8 @@ class SelectSystemsDialog extends StatelessWidget {
               );
               _scaffoldKey.currentState.showSnackBar(snackBar);
 
-              final fromSys = _systemSearch.system(fromStr);
-              final toSys = _systemSearch.system(toStr);
+              final fromSys = search.system(fromStr);
+              final toSys = search.system(toStr);
               assert(fromSys != null);
               assert(toSys != null);
               Navigator.of(context).pop(SelectedSystems(fromSys, toSys));
@@ -93,7 +92,9 @@ class SystemSelectionField extends StatefulWidget {
   final SystemSearchService _systemSearch;
 
   SystemSelectionField(
-      {Key key, @required this.hint, @required SystemSearchService systemSearch})
+      {Key key,
+      @required this.hint,
+      @required SystemSearchService systemSearch})
       : _systemSearch = systemSearch,
         super(key: key);
 
