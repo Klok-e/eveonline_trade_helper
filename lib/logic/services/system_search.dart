@@ -13,13 +13,13 @@ class SystemSearchPattern {
 }
 
 /// For fast validation of system name correctness
-class SystemSearch {
+class SystemSearchService {
   final UniverseApi _universeApi;
   final SearchApi _searchApi;
 
   Map<String, EveSystem> _systemNames = Map();
 
-  SystemSearch(UniverseApi universeApi, SearchApi searchApi)
+  SystemSearchService(UniverseApi universeApi, SearchApi searchApi)
       : _universeApi = universeApi,
         _searchApi = searchApi;
 
@@ -42,5 +42,9 @@ class SystemSearch {
     }));
     _systemNames.addEntries(sys.map((s) => MapEntry(s.name, s)));
     return sys;
+  }
+
+  EveSystem system(String name) {
+    return _systemNames[name];
   }
 }

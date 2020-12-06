@@ -16,7 +16,7 @@ void main() {
 }
 
 class TradeApp extends StatelessWidget {
-  const TradeApp({Key? key}) : super(key: key);
+  const TradeApp({Key key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -46,15 +46,28 @@ class TradeApp extends StatelessWidget {
             ),
             RepositoryProvider<SearchApi>(
               create: (context) => SearchApi(),
+            ),
+            RepositoryProvider<MarketApi>(
+              create: (context) => MarketApi(),
+            ),
+            RepositoryProvider<SystemSearchService>(
+              create: (context) => SystemSearchService(
+                  context.read<UniverseApi>(), context.read<SearchApi>()),
+            ),
+            RepositoryProvider<MarketDataService>(
+              create: (context) => MarketDataService(
+                  context.read<MarketApi>(), context.read<UniverseApi>()),
             )
           ],
           child: MultiBlocProvider(
             providers: [
-              BlocProvider<SystemSearchBloc>(
-                  create: (context) =>
-                      SystemSearchBloc(
-                          context.read<UniverseApi>(),
-                          context.read<SearchApi>()))
+              BlocProvider<SortWayBloc>(
+                create: (context) => SortWayBloc(SortType.margin_desc),
+              ),
+              BlocProvider<CompareSystemsBloc>(
+                create: (context) =>
+                    CompareSystemsBloc(context.read<MarketDataService>()),
+              )
             ],
             child: HomePage(
               'EVE Trade Helper',
@@ -68,8 +81,9 @@ class HomePage extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final String title;
 
-  HomePage(this.title, {
-    Key? key,
+  HomePage(
+    this.title, {
+    Key key,
   }) : super(key: key);
 
   @override
@@ -111,36 +125,30 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
-        body: BlocListener<SortWayBloc, SortType>(
-            listener: (context, state) {
-              final snackBar = SnackBar(
-                content: Text("Sorting by ${state.name}"),
-                duration: Duration(milliseconds: 2000),
+        body: BlocListener<SortWayBloc, SortType>(listener: (context, state) {
+          final snackBar = SnackBar(
+            content: Text("Sorting by ${state.name}"),
+            duration: Duration(milliseconds: 2000),
+          );
+          Scaffold.of(context).showSnackBar(snackBar);
+        }, child: BlocBuilder<CompareSystemsBloc, CompareSystemsState>(
+          builder: (context, state) {
+            Widget child = state.when(() {
+              return Text("Nothing here yet");
+            }, error: (msg) {
+              return Text("An error happened: ${msg}");
+            }, loading: () {
+              return SizedBox(
+                child: CircularProgressIndicator(),
+                width: 60,
+                height: 60,
               );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar)
-            },
-            child: BlocBuilder<CompareSystemsBloc, List<MarketCmpResult>>(
-              builder: (context, state) {
-                Widget child;
-                if (snapshot.hasData) {
-                  child = TradesList();
-                } else if (snapshot.hasError) {
-                  child = Text(
-                      "Some error happened: ${snapshot.error.toString()}");
-                } else {
-                  child = SizedBox(
-                    child: CircularProgressIndicator(),
-                    width: 60,
-                    height: 60,
-                  );
-                }
-                return Center(
-                  child: child,
-                );
-              },
-            )
-        )
-    );
+            }, comparison: (cmps) {
+              return TradesList(comparisons: cmps);
+            });
+            return Center(child: child);
+          },
+        )));
   }
 }
 

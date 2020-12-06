@@ -7,16 +7,9 @@ import '../models/sort_type.dart';
 class SortButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final SortWayBloc sort = context.read<SortWayBloc>();
-
     return PopupMenuButton<SortType>(
       onSelected: (value) {
-        // final snackBar = SnackBar(
-        //   content: Text("Sorting by ${value.name}"),
-        //   duration: Duration(milliseconds: 2000),
-        // );
-        // Scaffold.of(context).showSnackBar(snackBar);
-
+        final SortWayBloc sort = context.read<SortWayBloc>();
         sort.add(value);
       },
       icon: Icon(Icons.sort),

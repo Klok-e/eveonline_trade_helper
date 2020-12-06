@@ -51,13 +51,13 @@ class SystemMarketData {
     //         k, ItemOrders(v.map((e) => e.orderData).toList(), Order.Buy, k)));
   }
 
-  static MarketCmpResult _cmpItems(ItemOrders? from, ItemOrders? to) {
+  static MarketCmpResult _cmpItems(ItemOrders from, ItemOrders to) {
     if (from == null && to == null) {
       throw ArgumentError("from and to cant both be null");
     }
 
     if (from == null) {
-      return MarketFromNotStocked(to!.itemId);
+      return MarketFromNotStocked(to.itemId);
     }
     if (from.orders.isEmpty) {
       return MarketFromNotStocked(from.itemId);
@@ -123,11 +123,11 @@ class MarketToNotStocked extends MarketCmpResult {
       : super(itemId);
 }
 
-class MarketData {
+class MarketDataService {
   final MarketApi _marketApi;
   final UniverseApi _universeApi;
 
-  MarketData(MarketApi marketApi, UniverseApi _universeApi)
+  MarketDataService(MarketApi marketApi, UniverseApi _universeApi)
       : _marketApi = marketApi,
         _universeApi = _universeApi;
 

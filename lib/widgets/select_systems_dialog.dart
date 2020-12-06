@@ -13,7 +13,7 @@ class SelectedSystems {
 }
 
 class SelectSystemsDialog extends StatelessWidget {
-  final SystemSearchBloc _systemSearch;
+  final SystemSearchService _systemSearch;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<SystemSelectionFieldState> _fromFieldKey =
@@ -22,10 +22,11 @@ class SelectSystemsDialog extends StatelessWidget {
       GlobalKey<SystemSelectionFieldState>();
   final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  SelectSystemsDialog(
-      SystemSearchBloc systemSearch, GlobalKey<ScaffoldState> scaffoldKey,
-      {Key? key})
-      : _systemSearch = systemSearch,
+  SelectSystemsDialog({
+    Key key,
+    @required SystemSearchService systemSearch,
+    @required GlobalKey<ScaffoldState> scaffoldKey,
+  })  : _systemSearch = systemSearch,
         _scaffoldKey = scaffoldKey,
         super(key: key);
 
@@ -60,16 +61,19 @@ class SelectSystemsDialog extends StatelessWidget {
             if (this._formKey.currentState.validate()) {
               this._formKey.currentState.save();
 
+              final fromStr = _fromFieldKey.currentState.selected;
+              final toStr = _toFieldKey.currentState.selected;
               final snackBar = SnackBar(
-                content: Text(
-                    "Trade route from ${_fromFieldKey.currentState.selected} to ${_toFieldKey.currentState.selected}"),
+                content: Text("Trade route from ${fromStr} to ${toStr}"),
                 duration: Duration(milliseconds: 2000),
               );
               _scaffoldKey.currentState.showSnackBar(snackBar);
 
-              Navigator.of(context).pop(SelectedSystems(
-                  _systemSearch.system(_fromFieldKey.currentState.selected),
-                  _systemSearch.system(_toFieldKey.currentState.selected)));
+              final fromSys = _systemSearch.system(fromStr);
+              final toSys = _systemSearch.system(toStr);
+              assert(fromSys != null);
+              assert(toSys != null);
+              Navigator.of(context).pop(SelectedSystems(fromSys, toSys));
             }
           },
         ),
@@ -86,9 +90,10 @@ class SelectSystemsDialog extends StatelessWidget {
 
 class SystemSelectionField extends StatefulWidget {
   final String hint;
-  final SystemSearchBloc _systemSearch;
+  final SystemSearchService _systemSearch;
 
-  SystemSelectionField({Key? key, required this.hint, required SystemSearchBloc systemSearch})
+  SystemSelectionField(
+      {Key key, @required this.hint, @required SystemSearchService systemSearch})
       : _systemSearch = systemSearch,
         super(key: key);
 
@@ -104,12 +109,13 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
   @override
   Widget build(BuildContext context) {
     return TypeAheadFormField<EveSystem>(
-      textFieldConfiguration: TextFieldConfiguration(
+      textFieldConfiguration: TextFieldConfiguration<String>(
         decoration:
             InputDecoration(hintText: widget.hint, labelText: widget.hint),
         controller: _typeAheadController,
       ),
       validator: (value) {
+        assert(value != null);
         if (value != "") {
           return (widget._systemSearch.system(value) != null
               ? null

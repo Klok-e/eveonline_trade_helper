@@ -5,9 +5,8 @@ import 'package:flutter/widgets.dart';
 import '../logic/services/market_data.dart';
 
 class TradesList extends StatelessWidget {
-  final SortType sortType;
-
-  const TradesList(this.sortType, {Key? key}) : super(key: key);
+  const TradesList({Key key, @required List<MarketCmpResult> comparisons})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
