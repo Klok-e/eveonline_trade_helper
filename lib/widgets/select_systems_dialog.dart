@@ -29,8 +29,6 @@ class SelectSystemsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final search = context.watch<SystemSearchService>();
-
     return AlertDialog(
       title: Text("Select systems"),
       content: Form(
@@ -41,12 +39,10 @@ class SelectSystemsDialog extends StatelessWidget {
                 SystemSelectionField(
                   key: _fromFieldKey,
                   hint: "From system",
-                  systemSearch: search,
                 ),
                 SystemSelectionField(
                   key: _toFieldKey,
                   hint: "To system",
-                  systemSearch: search,
                 ),
               ],
               mainAxisSize: MainAxisSize.min,
@@ -68,6 +64,7 @@ class SelectSystemsDialog extends StatelessWidget {
               );
               _scaffoldKey.currentState.showSnackBar(snackBar);
 
+              final search = context.read<SystemSearchService>();
               final fromSys = search.system(fromStr);
               final toSys = search.system(toStr);
               assert(fromSys != null);
@@ -89,14 +86,11 @@ class SelectSystemsDialog extends StatelessWidget {
 
 class SystemSelectionField extends StatefulWidget {
   final String hint;
-  final SystemSearchService _systemSearch;
 
-  SystemSelectionField(
-      {Key key,
-      @required this.hint,
-      @required SystemSearchService systemSearch})
-      : _systemSearch = systemSearch,
-        super(key: key);
+  SystemSelectionField({
+    Key key,
+    @required this.hint,
+  }) : super(key: key);
 
   @override
   SystemSelectionFieldState createState() => SystemSelectionFieldState();
@@ -118,7 +112,8 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
       validator: (value) {
         assert(value != null);
         if (value != "") {
-          return (widget._systemSearch.system(value) != null
+          final search = context.read<SystemSearchService>();
+          return (search.system(value) != null
               ? null
               : "System doesn't exist");
         } else {
@@ -154,7 +149,8 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
         if (pattern.length < 3) {
           return null;
         }
-        return await widget._systemSearch.searchSystems(pattern, 10);
+        final search = context.read<SystemSearchService>();
+        return await search.searchSystems(pattern, 10);
       },
       hideOnLoading: true,
     );
