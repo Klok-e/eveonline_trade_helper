@@ -19,13 +19,8 @@ class SelectSystemsDialog extends StatelessWidget {
       GlobalKey<SystemSelectionFieldState>();
   final GlobalKey<SystemSelectionFieldState> _toFieldKey =
       GlobalKey<SystemSelectionFieldState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  SelectSystemsDialog({
-    Key key,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
-  })  : _scaffoldKey = scaffoldKey,
-        super(key: key);
+  SelectSystemsDialog({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -58,11 +53,6 @@ class SelectSystemsDialog extends StatelessWidget {
 
               final fromStr = _fromFieldKey.currentState.selected;
               final toStr = _toFieldKey.currentState.selected;
-              final snackBar = SnackBar(
-                content: Text("Trade route from ${fromStr} to ${toStr}"),
-                duration: Duration(milliseconds: 2000),
-              );
-              _scaffoldKey.currentState.showSnackBar(snackBar);
 
               final search = context.read<SystemSearchService>();
               final fromSys = search.system(fromStr);
@@ -113,9 +103,7 @@ class SystemSelectionFieldState extends State<SystemSelectionField> {
         assert(value != null);
         if (value != "") {
           final search = context.read<SystemSearchService>();
-          return (search.system(value) != null
-              ? null
-              : "System doesn't exist");
+          return (search.system(value) != null ? null : "System doesn't exist");
         } else {
           return "Please enter a system name";
         }

@@ -79,7 +79,6 @@ class TradeApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final String title;
 
   HomePage(
@@ -95,15 +94,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: widget.scaffoldKey,
         appBar: AppBar(
           title: Text(widget.title),
-          actions: [
-            SortButton(),
-            SelectSystemsButton(
-              scaffoldKey: widget.scaffoldKey,
-            )
-          ],
+          actions: [SortButton(), SelectSystemsButton()],
         ),
         body: BlocListener<SortWayBloc, SortType>(listener: (context, state) {
           final snackBar = SnackBar(
