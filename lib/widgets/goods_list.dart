@@ -14,11 +14,13 @@ class TradesList extends StatelessWidget {
       children: comparisons.map((e) {
         return e.when(
           success: (itemId, data) {
+
             return EveItem(
               itemName: "item ${itemId}",
               buyPrice: data.buy,
               sellPrice: data.sell,
               margin: data.margin,
+              profit: data.profit,
               buyAvailableVolume: data.buyAvailableVolume,
               sellVolume: data.sellVolume,
             );
@@ -43,15 +45,16 @@ class EveItem extends StatelessWidget {
   final double margin;
   final int buyAvailableVolume;
   final int sellVolume;
+  final double profit;
 
-  const EveItem(
-      {Key key,
-      @required this.itemName,
-      @required this.buyPrice,
-      @required this.sellPrice,
-      @required this.margin,
-      @required this.buyAvailableVolume,
-      @required this.sellVolume})
+  const EveItem({Key key,
+    @required this.itemName,
+    @required this.buyPrice,
+    @required this.sellPrice,
+    @required this.margin,
+    @required this.buyAvailableVolume,
+    @required this.sellVolume,
+    @required this.profit})
       : super(key: key);
 
   @override
@@ -70,7 +73,9 @@ class EveItem extends StatelessWidget {
         Spacer(),
         Text(fmt.format(sellPrice)),
         Spacer(),
-        Text(fmtPerc.format(margin))
+        Text(fmt.format(profit)),
+        Spacer(),
+        Text(fmtPerc.format(margin)),
       ],
     );
   }

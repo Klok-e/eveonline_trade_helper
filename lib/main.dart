@@ -123,8 +123,7 @@ class _HomePageState extends State<HomePage> {
               // return TradesList(comparisons: cmps);
               return BlocBuilder<SortWayBloc, SortType>(
                   builder: (context, state) {
-                state.sort(cmps);
-                return TradesList(comparisons: cmps);
+                return TradesList(comparisons: state.sort(cmps));
               });
             });
             return Center(child: child);

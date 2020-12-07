@@ -9,17 +9,18 @@ enum SortType {
 extension SortTypeExt on SortType {
   String get name {
     switch (this) {
-      case SortType.profit_desc:
-        return "Margin Descending";
       case SortType.margin_desc:
+        return "Margin Descending";
+      case SortType.profit_desc:
         return "Profit Descending";
     }
   }
 
-  void sort(List<MarketCmpResultF> comparisons) {
+  List<MarketCmpResultF> sort(List<MarketCmpResultF> comparisons) {
+    final cmps = List<MarketCmpResultF>.from(comparisons);
     switch (this) {
       case SortType.profit_desc:
-        comparisons.sort((a, b) {
+        cmps.sort((a, b) {
           return b.maybeWhen(
             success: (itemId, bdata) => bdata.profit.compareTo(a.maybeWhen(
               success: (itemId, adata) => adata.profit,
@@ -33,9 +34,9 @@ extension SortTypeExt on SortType {
         });
         break;
       case SortType.margin_desc:
-        comparisons.sort((a, b) {
+        cmps.sort((a, b) {
           return b.maybeWhen(
-            success: (itemId, bdata) => bdata.margin.compareTo(b.maybeWhen(
+            success: (itemId, bdata) => bdata.margin.compareTo(a.maybeWhen(
               success: (itemId, adata) => adata.margin,
               orElse: () => double.negativeInfinity,
             )),
@@ -47,5 +48,6 @@ extension SortTypeExt on SortType {
         });
         break;
     }
+    return cmps;
   }
 }
