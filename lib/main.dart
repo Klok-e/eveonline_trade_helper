@@ -1,16 +1,16 @@
+import 'package:dart_eveonline_esi/api.dart';
 import 'package:eveonline_trade_helper/logic/compare_systems_bloc.dart';
 import 'package:eveonline_trade_helper/logic/sort_way.dart';
 import 'package:eveonline_trade_helper/widgets/select_systems_button.dart';
 import 'package:flutter/material.dart';
-import 'package:dart_eveonline_esi/api.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
+import 'logic/services/market_data.dart';
+import 'logic/services/system_search.dart';
 import 'models/sort_type.dart';
 import 'widgets/goods_list.dart';
-import 'logic/services/market_data.dart';
-import 'widgets/select_systems_dialog.dart';
 import 'widgets/sort_button.dart';
-import 'logic/services/system_search.dart';
 
 void main() {
   runApp(const TradeApp());
@@ -42,6 +42,9 @@ class TradeApp extends StatelessWidget {
         ),
         home: MultiRepositoryProvider(
           providers: [
+            RepositoryProvider<Logger>(
+              create: (context) => Logger(level: Level.verbose),
+            ),
             RepositoryProvider<UniverseApi>(
               create: (context) => UniverseApi(),
             ),
@@ -56,9 +59,9 @@ class TradeApp extends StatelessWidget {
                   context.read<UniverseApi>(), context.read<SearchApi>()),
             ),
             RepositoryProvider<MarketDataService>(
-              create: (context) => MarketDataService(
-                  context.read<MarketApi>(), context.read<UniverseApi>()),
-            )
+              create: (context) => MarketDataService(context.read<MarketApi>(),
+                  context.read<UniverseApi>(), context.read<Logger>()),
+            ),
           ],
           child: MultiBlocProvider(
             providers: [
@@ -117,7 +120,12 @@ class _HomePageState extends State<HomePage> {
                 height: 60,
               );
             }, comparison: (cmps) {
-              return TradesList(comparisons: cmps);
+              // return TradesList(comparisons: cmps);
+              return BlocBuilder<SortWayBloc, SortType>(
+                  builder: (context, state) {
+                state.sort(cmps);
+                return TradesList(comparisons: cmps);
+              });
             });
             return Center(child: child);
           },

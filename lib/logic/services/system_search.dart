@@ -1,6 +1,5 @@
 import 'package:dart_eveonline_esi/api.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/eve_system.dart';
 
@@ -23,8 +22,7 @@ class SystemSearchService {
       : _universeApi = universeApi,
         _searchApi = searchApi;
 
-  Future<List<EveSystem>> searchSystems(
-      String pattern, int takeFirst) async {
+  Future<List<EveSystem>> searchSystems(String pattern, int takeFirst) async {
     var systems = await _searchApi.getSearch(<String>["solar_system"], pattern);
     // if (systems.solarSystem == null) {
     //   return <EveSystem>[];

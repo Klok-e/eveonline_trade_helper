@@ -1,10 +1,10 @@
 import 'package:eveonline_trade_helper/models/eve_system.dart';
+import 'package:eveonline_trade_helper/models/market_cmp_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'services/market_data.dart';
-import 'services/system_search.dart';
 
 part 'compare_systems_bloc.freezed.dart';
 
@@ -24,9 +24,8 @@ abstract class CompareSystemsState with _$CompareSystemsState {
 
   const factory CompareSystemsState.loading() = _Loading;
 
-
   const factory CompareSystemsState.comparison(
-      List<MarketCmpResult> itemComparisons) = _Comparison;
+      List<MarketCmpResultF> itemComparisons) = _Comparison;
 }
 
 class CompareSystemsBloc extends Bloc<CmpSystems, CompareSystemsState> {
