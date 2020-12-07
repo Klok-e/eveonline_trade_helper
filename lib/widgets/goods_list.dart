@@ -1,6 +1,7 @@
 import 'package:eveonline_trade_helper/models/market_cmp_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
 class TradesList extends StatelessWidget {
   final List<MarketCmpResultF> comparisons;
@@ -55,6 +56,8 @@ class EveItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fmt = NumberFormat.compact();
+    final fmtPerc = NumberFormat.percentPattern();
     return Row(
       children: [
         Icon(
@@ -63,11 +66,11 @@ class EveItem extends StatelessWidget {
         ),
         Text(itemName),
         Spacer(),
-        Text(buyPrice.toString()),
+        Text(fmt.format(buyPrice)),
         Spacer(),
-        Text(sellPrice.toString()),
+        Text(fmt.format(sellPrice)),
         Spacer(),
-        Text("${margin}")
+        Text(fmtPerc.format(margin))
       ],
     );
   }
