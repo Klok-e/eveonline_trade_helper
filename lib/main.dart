@@ -1,5 +1,5 @@
 import 'package:dart_eveonline_esi/api.dart';
-import 'package:eveonline_trade_helper/blocs/compare_systems_bloc.dart';
+import 'package:eveonline_trade_helper/blocs/compare_systems/compare_systems_bloc.dart';
 import 'package:eveonline_trade_helper/blocs/sort_way.dart';
 import 'package:eveonline_trade_helper/widgets/select_systems_button.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:logger/logger.dart';
 
+import 'blocs/compare_systems/compare_systems_state.dart';
 import 'services/market_data.dart';
 import 'services/system_search.dart';
 import 'models/sort_type.dart';
