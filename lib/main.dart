@@ -4,6 +4,7 @@ import 'package:eveonline_trade_helper/blocs/sort_way.dart';
 import 'package:eveonline_trade_helper/widgets/select_systems_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:logger/logger.dart';
 
 import 'services/market_data.dart';
@@ -12,7 +13,9 @@ import 'models/sort_type.dart';
 import 'widgets/goods_list.dart';
 import 'widgets/sort_button.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  HydratedBloc.storage = await HydratedStorage.build();
   runApp(const TradeApp());
 }
 
@@ -121,9 +124,9 @@ class _HomePageState extends State<HomePage> {
                 height: 60,
               ));
             }, comparison: (cmps) {
-              // return TradesList(comparisons: cmps);
               return BlocBuilder<SortWayBloc, SortType>(
                   builder: (context, state) {
+                // TODO: move sort to a bloc or a service
                 return TradesList(comparisons: state.sort(cmps));
               });
             });
