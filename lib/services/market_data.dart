@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:logger/logger.dart';
 
-import '../../models/eve_system.dart';
+import '../models/eve_system.dart';
 
 enum Order { Buy, Sell }
 
@@ -32,20 +32,19 @@ class ItemOrderData {
 class ItemOrders {
   final List<ItemOrderData> orders;
   final Order order;
-  final int itemId;
 
-  const ItemOrders(this.orders, this.order, this.itemId);
+  const ItemOrders(this.orders, this.order);
 }
 
 class SystemMarketData {
   Map<int, ItemOrders> _sell;
 
-  SystemMarketData(List<OrderData> orders)
-      : _sell = groupBy<OrderData, int>(
-            orders.where((ord) => ord.order == Order.Sell).toList(),
-            (v) =>
-                v.typeId).map((k, v) => MapEntry(
-            k, ItemOrders(v.map((e) => e.orderData).toList(), Order.Sell, k))) {
+  SystemMarketData(List<OrderData> orders) {
+    final buySell = groupBy<OrderData, Order>(orders, (x) => x.order);
+
+    _sell = groupBy<OrderData, int>(buySell[Order.Sell], (v) => v.typeId).map(
+        (k, v) => MapEntry(
+            k, ItemOrders(v.map((e) => e.orderData).toList(), Order.Sell)));
     // _buy = groupBy<OrderData, int>(
     //         orders.where((ord) => ord.order == Order.Buy).toList(),
     //         (v) => v.typeId)
@@ -53,16 +52,13 @@ class SystemMarketData {
     //         k, ItemOrders(v.map((e) => e.orderData).toList(), Order.Buy, k)));
   }
 
-  static MarketCmpResultF _cmpItems(ItemOrders from, ItemOrders to) {
+  static MarketCmpResultF _cmpItems(
+      int itemId, ItemOrders from, ItemOrders to) {
     if (from == null && to == null) {
       throw ArgumentError("from and to cant both be null");
     }
-
-    if (from == null) {
-      return MarketCmpResultF.fromNotStocked(to.itemId);
-    }
-    if (from.orders.isEmpty) {
-      return MarketCmpResultF.fromNotStocked(from.itemId);
+    if (from == null || from.orders.isEmpty) {
+      throw ArgumentError("from cant both be null or empty");
     }
 
     // find min buy price
@@ -73,12 +69,10 @@ class SystemMarketData {
 
     if (to == null || to.orders.isEmpty) {
       return MarketCmpResultF.toNotStocked(
-        from.itemId,
+        itemId,
         MarketToNotStocked(fromPrice, fromVol),
       );
     }
-
-    assert(from.itemId == to.itemId);
 
     // find either min (if sell order) or max (if buy order) sell price
     final toPrice = to.orders.fold<double>(
@@ -89,7 +83,7 @@ class SystemMarketData {
         from.orders.first.volumeRemain, (acc, x) => acc + x.volumeRemain);
 
     return MarketCmpResultF.success(
-        from.itemId,
+        itemId,
         MarketSuccess(
             margin: (toPrice - fromPrice) / fromPrice,
             profit: toPrice - fromPrice,
@@ -101,7 +95,7 @@ class SystemMarketData {
 
   List<MarketCmpResultF> cmpSellSell(SystemMarketData other) {
     final compared = _sell.entries.map((entry) {
-      return _cmpItems(entry.value, other._sell[entry.key]);
+      return _cmpItems(entry.key, entry.value, other._sell[entry.key]);
     });
     return compared.toList();
   }
@@ -115,7 +109,7 @@ class MarketDataService {
   MarketDataService(this._marketApi, this._universeApi, this._logger);
 
   Future<SystemMarketData> systemData(EveSystem system) async {
-    _logger.v("system market data for ${system.name} requested");
+    _logger.v("system market data for system ${system.name} requested");
     // first get region id for orders
     var constellation = await _universeApi
         .getUniverseConstellationsConstellationId(system.constellationId);
@@ -130,7 +124,7 @@ class MarketDataService {
           page: page++);
       regionOrders.addAll(pageOrders);
       _logger.v(
-          "page ${page} finished download: ${pageOrders.length} orders downloaded");
+          "system ${system.name}: page ${page} finished download: ${pageOrders.length} orders downloaded");
     } while (pageOrders.length >= 1000);
 
     var systemOrders = regionOrders.where((el) => el.systemId == system.id).map(

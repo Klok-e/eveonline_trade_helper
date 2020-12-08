@@ -1,13 +1,13 @@
 import 'package:dart_eveonline_esi/api.dart';
-import 'package:eveonline_trade_helper/logic/compare_systems_bloc.dart';
-import 'package:eveonline_trade_helper/logic/sort_way.dart';
+import 'package:eveonline_trade_helper/blocs/compare_systems_bloc.dart';
+import 'package:eveonline_trade_helper/blocs/sort_way.dart';
 import 'package:eveonline_trade_helper/widgets/select_systems_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
-import 'logic/services/market_data.dart';
-import 'logic/services/system_search.dart';
+import 'services/market_data.dart';
+import 'services/system_search.dart';
 import 'models/sort_type.dart';
 import 'widgets/goods_list.dart';
 import 'widgets/sort_button.dart';
@@ -69,8 +69,8 @@ class TradeApp extends StatelessWidget {
                 create: (context) => SortWayBloc(SortType.margin_desc),
               ),
               BlocProvider<CompareSystemsBloc>(
-                create: (context) =>
-                    CompareSystemsBloc(context.read<MarketDataService>()),
+                create: (context) => CompareSystemsBloc(
+                    context.read<MarketDataService>(), context.read<Logger>()),
               )
             ],
             child: HomePage(
@@ -110,15 +110,16 @@ class _HomePageState extends State<HomePage> {
         }, child: BlocBuilder<CompareSystemsBloc, CompareSystemsState>(
           builder: (context, state) {
             Widget child = state.when(() {
-              return Text("Nothing here yet");
+              return Center(child: Text("Nothing here yet"));
             }, error: (msg) {
-              return Text("An error happened: ${msg}");
+              return Center(child: Text("An error happened: ${msg}"));
             }, loading: () {
-              return SizedBox(
+              return Center(
+                  child: SizedBox(
                 child: CircularProgressIndicator(),
                 width: 60,
                 height: 60,
-              );
+              ));
             }, comparison: (cmps) {
               // return TradesList(comparisons: cmps);
               return BlocBuilder<SortWayBloc, SortType>(
@@ -126,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 return TradesList(comparisons: state.sort(cmps));
               });
             });
-            return Center(child: child);
+            return child;
           },
         )));
   }

@@ -1,7 +1,7 @@
 import 'package:dart_eveonline_esi/api.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../models/eve_system.dart';
+import '../models/eve_system.dart';
 
 @immutable
 class SystemSearchPattern {
@@ -24,9 +24,6 @@ class SystemSearchService {
 
   Future<List<EveSystem>> searchSystems(String pattern, int takeFirst) async {
     var systems = await _searchApi.getSearch(<String>["solar_system"], pattern);
-    // if (systems.solarSystem == null) {
-    //   return <EveSystem>[];
-    // }
 
     var sys = await Future.wait(
         (systems.solarSystem ?? []).take(takeFirst).map((sysid) async {

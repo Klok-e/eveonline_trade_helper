@@ -7,8 +7,6 @@ abstract class MarketCmpResultF with _$MarketCmpResultF {
   const factory MarketCmpResultF.success(int itemId, MarketSuccess data) =
       _Success;
 
-  const factory MarketCmpResultF.fromNotStocked(int itemId) = _FromNotStocked;
-
   const factory MarketCmpResultF.toNotStocked(
       int itemId, MarketToNotStocked data) = _ToNotStocked;
 }

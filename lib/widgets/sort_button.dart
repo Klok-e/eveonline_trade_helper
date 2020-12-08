@@ -1,4 +1,4 @@
-import 'package:eveonline_trade_helper/logic/sort_way.dart';
+import 'package:eveonline_trade_helper/blocs/sort_way.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,5 +1,5 @@
-import 'package:eveonline_trade_helper/logic/compare_systems_bloc.dart';
-import 'package:eveonline_trade_helper/logic/services/system_search.dart';
+import 'package:eveonline_trade_helper/blocs/compare_systems_bloc.dart';
+import 'package:eveonline_trade_helper/services/system_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';

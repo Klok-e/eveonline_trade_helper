@@ -3,6 +3,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
+class _TradesTableSource extends DataTableSource {
+  final List<MarketCmpResultF> data;
+
+  _TradesTableSource(this.data);
+
+  @override
+  DataRow getRow(int index) {
+    return data[index].when(
+      success: (itemId, data) {
+        return EveItem(
+          itemName: "item ${itemId}",
+          buyPrice: data.buy,
+          sellPrice: data.sell,
+          margin: data.margin,
+          profit: data.profit,
+          buyAvailableVolume: data.buyAvailableVolume,
+          sellVolume: data.sellVolume,
+        ).createRow();
+      },
+      toNotStocked: (itemId, data) {
+        return DataRow(cells: [
+          DataCell(Text("not:")),
+          DataCell(Text(":")),
+          DataCell(Text("implemented")),
+          DataCell(Text("to")),
+          DataCell(Text("not")),
+          DataCell(Text("stocked")),
+        ]);
+      },
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => data.length;
+
+  @override
+  int get selectedRowCount => 0;
+}
+
 class TradesList extends StatelessWidget {
   final List<MarketCmpResultF> comparisons;
 
@@ -10,30 +52,20 @@ class TradesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: comparisons.map((e) {
-        return e.when(
-          success: (itemId, data) {
-
-            return EveItem(
-              itemName: "item ${itemId}",
-              buyPrice: data.buy,
-              sellPrice: data.sell,
-              margin: data.margin,
-              profit: data.profit,
-              buyAvailableVolume: data.buyAvailableVolume,
-              sellVolume: data.sellVolume,
-            );
-          },
-          fromNotStocked: (itemId) {
-            return Text("not implemented: from not stocked");
-          },
-          toNotStocked: (itemId, data) {
-            return Text("not implemented: to not stocked");
-          },
-        );
-      }).toList(),
-    );
+    return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: PaginatedDataTable(
+          columns: [
+            DataColumn(label: Text("Icon")),
+            DataColumn(label: Text("Name")),
+            DataColumn(label: Text("Buy")),
+            DataColumn(label: Text("Sell")),
+            DataColumn(label: Text("Profit")),
+            DataColumn(label: Text("Margin")),
+          ],
+          source: _TradesTableSource(comparisons),
+          header: Container(),
+        ));
   }
 }
 
@@ -47,14 +79,31 @@ class EveItem extends StatelessWidget {
   final int sellVolume;
   final double profit;
 
-  const EveItem({Key key,
-    @required this.itemName,
-    @required this.buyPrice,
-    @required this.sellPrice,
-    @required this.margin,
-    @required this.buyAvailableVolume,
-    @required this.sellVolume,
-    @required this.profit})
+  DataRow createRow() {
+    final fmt = NumberFormat.compact();
+    final fmtPerc = NumberFormat.percentPattern();
+    return DataRow(cells: [
+      DataCell(Icon(
+        Icons.image,
+        size: 50,
+      )),
+      DataCell(Text(itemName)),
+      DataCell(Text(fmt.format(buyPrice))),
+      DataCell(Text(fmt.format(sellPrice))),
+      DataCell(Text(fmt.format(profit))),
+      DataCell(Text(fmtPerc.format(margin))),
+    ]);
+  }
+
+  const EveItem(
+      {Key key,
+      @required this.itemName,
+      @required this.buyPrice,
+      @required this.sellPrice,
+      @required this.margin,
+      @required this.buyAvailableVolume,
+      @required this.sellVolume,
+      @required this.profit})
       : super(key: key);
 
   @override
