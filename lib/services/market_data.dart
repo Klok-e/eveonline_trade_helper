@@ -41,6 +41,8 @@ class SystemMarketData {
 
   SystemMarketData(List<OrderData> orders) {
     final buySell = groupBy<OrderData, Order>(orders, (x) => x.order);
+    buySell[Order.Buy] = buySell[Order.Buy] ?? [];
+    buySell[Order.Sell] = buySell[Order.Sell] ?? [];
 
     _sell = groupBy<OrderData, int>(buySell[Order.Sell], (v) => v.typeId).map(
         (k, v) => MapEntry(

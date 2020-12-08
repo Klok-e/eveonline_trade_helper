@@ -1,5 +1,4 @@
 import 'package:eveonline_trade_helper/models/market_cmp_result.dart';
-import 'package:collection/collection.dart';
 
 enum SortType {
   profit_desc,

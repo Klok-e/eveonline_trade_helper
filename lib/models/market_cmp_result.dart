@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'market_cmp_result.freezed.dart';
-
 part 'market_cmp_result.g.dart';
 
 @freezed

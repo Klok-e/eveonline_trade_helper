@@ -1,6 +1,8 @@
 import 'package:dart_eveonline_esi/api.dart';
 import 'package:eveonline_trade_helper/blocs/compare_systems/compare_systems_bloc.dart';
 import 'package:eveonline_trade_helper/blocs/sort_way.dart';
+import 'package:eveonline_trade_helper/services/eve_icon_service.dart';
+import 'package:eveonline_trade_helper/services/item_data_service.dart';
 import 'package:eveonline_trade_helper/widgets/select_systems_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,9 +10,9 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:logger/logger.dart';
 
 import 'blocs/compare_systems/compare_systems_state.dart';
+import 'models/sort_type.dart';
 import 'services/market_data.dart';
 import 'services/system_search.dart';
-import 'models/sort_type.dart';
 import 'widgets/goods_list.dart';
 import 'widgets/sort_button.dart';
 
@@ -28,21 +30,53 @@ class TradeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primarySwatch: Colors.blue,
-          // This makes the visual density adapt to the platform that you run
-          // the app on. For desktop platforms, the controls will be smaller and
-          // closer together (more dense) than on mobile platforms.
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+        theme: ThemeData.from(
+          colorScheme: ColorScheme(
+            primary: Color(0xff262a2f),
+            primaryVariant: Color(0xff202022),
+            secondary: Color(0xff336eac),
+            secondaryVariant: Color(0xff1d4062),
+            error: Color(0xffe70e2e),
+            background: Color(0xff2c2f31),
+            surface: Color(0xff202022),
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onError: Colors.white,
+            onBackground: Colors.white,
+            onSurface: Colors.white,
+            brightness: Brightness.dark,
+          ),
+          textTheme: TextTheme(
+              headline1: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              headline2: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              headline3: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              headline4: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              headline5: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              headline6: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              subtitle1: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              subtitle2: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              bodyText1: TextStyle(
+                color: Color(0xffbdbdbd),
+              ),
+              bodyText2: TextStyle(
+                color: Color(0xffbdbdbd),
+              )),
         ),
         home: MultiRepositoryProvider(
           providers: [
@@ -66,6 +100,13 @@ class TradeApp extends StatelessWidget {
               create: (context) => MarketDataService(context.read<MarketApi>(),
                   context.read<UniverseApi>(), context.read<Logger>()),
             ),
+            RepositoryProvider<EveIconService>(
+              create: (context) => EveIconService("https://images.evetech.net"),
+            ),
+            RepositoryProvider<ItemDataService>(
+              create: (context) => ItemDataService(
+                  context.read<UniverseApi>(), context.read<EveIconService>()),
+            )
           ],
           child: MultiBlocProvider(
             providers: [
@@ -128,7 +169,11 @@ class _HomePageState extends State<HomePage> {
               return BlocBuilder<SortWayBloc, SortType>(
                   builder: (context, state) {
                 // TODO: move sort to a bloc or a service
-                return TradesList(comparisons: state.sort(cmps));
+                final itemData = context.watch<ItemDataService>();
+                return TradesList(
+                  comparisons: state.sort(cmps),
+                  itemDataService: itemData,
+                );
               });
             });
             return child;

@@ -1,8 +1,7 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:eveonline_trade_helper/models/market_cmp_result.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'compare_systems_state.freezed.dart';
-
 part 'compare_systems_state.g.dart';
 
 @freezed

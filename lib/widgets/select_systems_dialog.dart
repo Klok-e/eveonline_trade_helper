@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import '../services/system_search.dart';
 import '../models/eve_system.dart';
+import '../services/system_search.dart';
 
 class SelectedSystems {
   final EveSystem from;
