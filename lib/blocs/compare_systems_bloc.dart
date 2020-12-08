@@ -19,7 +19,7 @@ class CmpSystems {
 
 @freezed
 abstract class CompareSystemsState with _$CompareSystemsState {
-  const factory CompareSystemsState() = _Empty;
+  const factory CompareSystemsState.empty() = _Empty;
 
   const factory CompareSystemsState.error(String message) = _Error;
 
@@ -34,7 +34,7 @@ class CompareSystemsBloc extends Bloc<CmpSystems, CompareSystemsState> {
   final Logger _logger;
 
   CompareSystemsBloc(this._marketData, this._logger)
-      : super(CompareSystemsState());
+      : super(CompareSystemsState.empty());
 
   @override
   Stream<CompareSystemsState> mapEventToState(CmpSystems event) async* {

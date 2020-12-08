@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
           Scaffold.of(context).showSnackBar(snackBar);
         }, child: BlocBuilder<CompareSystemsBloc, CompareSystemsState>(
           builder: (context, state) {
-            Widget child = state.when(() {
+            Widget child = state.when(empty: () {
               return Center(child: Text("Nothing here yet"));
             }, error: (msg) {
               return Center(child: Text("An error happened: ${msg}"));
